@@ -17,27 +17,27 @@ TicTacToe::TicTacToe() : size(3)
 }
 
 
-State TicTacToe::reset()
+State TicTacToe::reset() const
 {
     State state = xt::zeros<int>({2,size,size});
     return state;
 }
 
-std::tuple<State, Reward, Done> TicTacToe::step(State state,
-                                                const Action& action,
-                                                const Player& player)
+std::tuple<State, Reward, Done> TicTacToe::step(const State& state, const Action& action) const
 {
-    int i, j;
-    std::tie(i, j) = action;
+    State next_state = state;
+    
+    int player, i, j;
+    std::tie(player, i, j) = action;
     
     // throw if the given action is not valid
-    auto actions = possible_actions(state);
+    auto actions = possible_actions(next_state, player);
     if (std::find(actions.begin(), actions.end(), action) == actions.end())
         throw std::exception();
     
-    state(player, i, j) = 1;
+    next_state(player, i, j) = 1;
     
-    int status = check_win(state, player);
+    int status = check_win(next_state, player);
     
     Done done = false;
     if (status < 2)
@@ -52,24 +52,24 @@ std::tuple<State, Reward, Done> TicTacToe::step(State state,
         else
             reward = Reward({-1,1});
     }
-    return std::tie(state, reward, done);
+    return std::tie(next_state, reward, done);
 }
 
-std::vector<Action> TicTacToe::possible_actions(const State& state)
+std::vector<Action> TicTacToe::possible_actions(const State& state, const int& player) const
 {
     std::vector<Action> actions;
     auto matrix = xt::sum(state, {0});
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             if (matrix(i,j) == 0)
-                actions.push_back(std::tie(i, j));
+                actions.push_back(std::tie(player, i, j));
         }
     }
     
     return actions;
 }
 
-int TicTacToe::check_win(const State& state, const Player& player)
+int TicTacToe::check_win(const State& state, const int& player) const
 {
     // 0: Draw, 1: Won, 2: Continue
     // No need for lost, as the current player can't lose
@@ -103,8 +103,30 @@ int TicTacToe::check_win(const State& state, const Player& player)
 }
 
 
-void TicTacToe::print(const State& state)
+void TicTacToe::print(const State& state) const
 {
-    xt::xtensor<int, 2> matrix = xt::view(state, 0) + 2 * xt::view(state, 1);
-    std::cout << matrix << std::endl << std::endl;
+    xt::xtensor<int, 2> board = xt::view(state, 0) + 2 * xt::view(state, 1);
+    
+    std::cout << "   ";
+    for (char c : "ABC") std::cout << c << ' ';
+    std::cout << std::endl;
+    
+    char mark;
+    for (int i = 0; i < size; i++) {
+        
+        std::cout << std::setw(2) << i << ' ';
+        for (int j = 0; j < size; j++) {
+            
+            mark = '.';
+            if (board(i, j) == 1) {
+                mark = 'O';
+            } else if (board(i, j) == 2) {
+                mark = 'X';
+            }
+            std::cout << mark << ' ';
+            
+        }
+        std::cout << std::endl;
+        
+    }
 }

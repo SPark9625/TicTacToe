@@ -11,9 +11,12 @@
 
 #include "tictactoe.hpp"
 
-Action get_action(int turn, Player player)
+Action get_action(int turn, int player)
 {
-    std::cout << "Turn " << turn << " (Player " << player << "): ";
+    char mark = 'O';
+    if (player == 1)
+        mark = 'X';
+    std::cout << std::endl << "Turn " << turn << " (Player " << mark << "): ";
     std::string str;
     getline(std::cin, str);
     
@@ -23,7 +26,7 @@ Action get_action(int turn, Player player)
     int i = int(a - '0');
     int j = int(b - '0');
     
-    return {i,j};
+    return {player, i,j};
 }
 
 int main(int argc, const char * argv[]) {
@@ -33,7 +36,7 @@ int main(int argc, const char * argv[]) {
     State state;
     Reward reward;
     Done done = false;
-    Player player = 0;
+    int player = 0;
     
     
     state = env.reset();
@@ -45,7 +48,7 @@ int main(int argc, const char * argv[]) {
     while (!done) {
         Action action = get_action(turn, player);
         try {
-            std::tie(state, reward, done) = env.step(state, action, player);
+            std::tie(state, reward, done) = env.step(state, action);
         } catch (std::exception& e) {
             std::cout << "Wrong action. Try again." << std::endl;
             continue;

@@ -16,8 +16,7 @@
 using State = xt::xtensor<int, 3>;
 using Reward = xt::xtensor<float, 1>;
 using Done = bool;
-using Action = std::tuple<int,int>;
-using Player = int;
+using Action = std::tuple<int,int,int>;
 
 class TicTacToe {
     int size;
@@ -26,17 +25,15 @@ class TicTacToe {
 public:
     TicTacToe();
     
-    State reset();
+    State reset() const;
     
-    std::tuple<State, Reward, Done> step(State state,
-                                         const Action& action,
-                                         const Player& player);
+    std::tuple<State, Reward, Done> step(const State& state, const Action& action) const;
     
-    std::vector<Action> possible_actions(const State& state);
+    std::vector<Action> possible_actions(const State& state, const int& player) const;
     
-    int check_win(const State& state, const Player& player);
+    int check_win(const State& state, const int& player) const;
     
-    void print(const State& state);
+    void print(const State& state) const;
     
 };
 
