@@ -26,20 +26,21 @@ Action get_action(int turn, int player)
     int i = int(a - '0');
     int j = int(b - '0');
     
-    return {player, i,j};
+    std::cout << "Action: " << i << ',' << j << std::endl;
+    
+    return {0,i,j};
 }
 
 int main(int argc, const char * argv[]) {
     
-    TicTacToe env = TicTacToe();
+    TicTacToe& env = TicTacToe::get();
     
     State state;
-    Reward reward;
-    Done done = false;
-    int player = 0;
-    
+    Reward reward = torch::from_blob((float[]){7,7}, {2});
+    bool done = false;
     
     state = env.reset();
+    int player = env.get_player(state);
     
     std::cout << "Begin" << std::endl;
     env.print(state);
@@ -51,14 +52,15 @@ int main(int argc, const char * argv[]) {
             std::tie(state, reward, done) = env.step(state, action);
         } catch (std::exception& e) {
             std::cout << "Wrong action. Try again." << std::endl;
+            std::cout << "Error: " << e.what() << std::endl;
             continue;
         }
         
-        player = (player + 1) % 2;
+        player = env.get_player(state);
         turn++;
         
         if (done)
-            std::cout << "Game finished. Reward: " << reward(0) << ',' << reward(1) << std::endl;
+            std::cout << "Game finished. Reward: " << reward[0].item<float>() << ',' << reward[1].item<float>() << std::endl;
         env.print(state);
         
     }

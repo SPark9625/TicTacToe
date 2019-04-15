@@ -9,32 +9,87 @@
 #ifndef tictactoe_hpp
 #define tictactoe_hpp
 
+#include <array>
+#include <string>
 #include <tuple>
 
-#include "xtensor/xtensor.hpp"
+#include <torch/torch.h>
 
-using State = xt::xtensor<int, 3>;
-using Reward = xt::xtensor<float, 1>;
-using Done = bool;
-using Action = std::tuple<int,int,int>;
+#include "types.hpp"
 
 class TicTacToe {
-    int size;
-    
-    
 public:
-    TicTacToe();
+#ifdef _LINUX
+    using shape_type = long;
+#else
+    using shape_type = long long;
+#endif // _LINUX
     
+    using state_type = State;
+    using policy_type = Policy;
+    using reward_type = Reward;
+
+    using id_type = ID;
+    using board_type = Board;
+    using action_type = Action;
+    
+private:
+    enum { DRAW, WIN, CONTINUE };
+
+    int size{3}; // width and height
+    int c_in{3};
+    int c_out{1};
+    int turn = 2; // index for turn
+    int num_players = 2;
+
+    std::array<shape_type, 3> board_shape {c_in, size, size}; // one for each player + one for indicating turn
+    std::array<shape_type, 3> action_shape {c_out, size, size};
+
+public:
+    static TicTacToe& get() {
+        static TicTacToe unique;
+        return unique;
+    }
+    
+    // Publically available functions
     State reset() const;
     
-    std::tuple<State, Reward, Done> step(const State& state, const Action& action) const;
+    std::tuple<State, Reward, bool> step(const State& state, const Action& action) const;
     
-    std::vector<Action> possible_actions(const State& state, const int& player) const;
+    std::vector<Action> possible_actions(const State& board, const int& player) const;
+
+    State fast_forward(State state, std::vector<Action> actions);
+
+    // getters
+    int get_size() const;
     
-    int check_win(const State& state, const int& player) const;
+    int get_num_players() const;
+
+    ID get_id(const State& state) const;
+    
+    Board get_board(const State& state) const;
+    
+    int get_player(const State& state) const;
+
+    auto get_board_shape() const
+        -> decltype(TicTacToe::board_shape);
+    
+    auto get_action_shape() const
+        -> decltype(TicTacToe::action_shape);
+
+    std::tuple<int, int, int> get_shape_info() const;
+
+    State copy(const State& other) const;
     
     void print(const State& state) const;
+
+    static std::string action_string(const Action& action); // for debugging
+private:
+    // private methods
+    int check_win(const Board& board, const int& player) const;
     
+    // Constructor private
+    TicTacToe();
 };
 
 #endif /* tictactoe_hpp */
