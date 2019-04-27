@@ -118,11 +118,6 @@ std::string TicTacToe::action_string(const Action& action)
     return "(" + std::to_string(i) + "," + std::to_string(j) + ")";
 }
 
-int TicTacToe::get_size() const
-{
-    return size;
-}
-
 int TicTacToe::get_num_players() const
 {
     return num_players;
@@ -155,9 +150,19 @@ auto TicTacToe::get_action_shape() const
     return action_shape;
 }
 
-std::tuple<int, int, int> TicTacToe::get_shape_info() const
+int TicTacToe::get_state_channels() const
 {
-    return { c_in, c_out, size };
+    return c_in;
+}
+
+int TicTacToe::get_action_channels() const
+{
+    return c_out;
+}
+
+int TicTacToe::get_board_size() const
+{
+    return size;
 }
 
 State TicTacToe::copy(const State& other) const

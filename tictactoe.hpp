@@ -26,7 +26,6 @@ public:
 #endif // _LINUX
     
     using state_type = State;
-    using policy_type = Policy;
     using reward_type = Reward;
 
     using id_type = ID;
@@ -77,7 +76,11 @@ public:
     auto get_action_shape() const
         -> decltype(TicTacToe::action_shape);
 
-    std::tuple<int, int, int> get_shape_info() const;
+    int get_state_channels() const;
+
+    int get_action_channels() const;
+
+    int get_board_size() const;
 
     State copy(const State& other) const;
     

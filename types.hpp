@@ -9,7 +9,6 @@ using Action = typename std::tuple<int,int,int>;
 using ID = typename std::vector<Action>;
 
 using Reward = torch::Tensor;
-using Policy = torch::Tensor;
 
 using State = typename std::tuple<ID, Board>;
 
